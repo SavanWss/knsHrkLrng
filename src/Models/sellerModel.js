@@ -6,7 +6,7 @@ import { createHashPwd } from "../Services/passwordHashing.js";
 
 
 // schema for sellers collection
-const sellersSchema = new mongoose.Schema({
+const sellersCollectionSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -45,9 +45,13 @@ const sellersSchema = new mongoose.Schema({
         trim: true,
         unique: true,
         minLength: 10,
-        maxLength: 10
+        maxLength: 10,
+        validate(value) {
+            if(parseInt(value) === null) {
+                throw new Error("mobile must contaion only digits")
+            }
+        }
     },
-
 
     gender: {
         type: String,
@@ -56,15 +60,10 @@ const sellersSchema = new mongoose.Schema({
         required: true
     },
 
-    password: {
+    role: {
         type: String,
         trim: true,
-        required: true
-    },
-
-    confirmpassword: {
-        type: String,
-        trim: true,
+        enum: ["seller"],
         required: true
     },
 
@@ -89,7 +88,7 @@ const sellersSchema = new mongoose.Schema({
 
 
 // middleware for generating the json web token
-sellersSchema.methods.generateAuthToken = async function () {
+sellersCollectionSchema.methods.generateAuthToken = async function () {
     try {
 
         // creting the jw token
@@ -102,30 +101,28 @@ sellersSchema.methods.generateAuthToken = async function () {
     } catch (error) {
         console.log(error);
         response.status(400).send({
+            status: "failed",
             errortitle: "error in creating authentication token",
             error: error
         })
+        return
     }
 }
 
 
 // middleware for hashing the password
-sellersSchema.pre("save", async function (next) {
-   
-    console.log("in this pre method non hashed raw password is ", this.password);
+sellersCollectionSchema.pre("save", async function (next) {
 
-    if(!this.isModified(this.password)) {
-        this.password = await createHashPwd(this.password)
-        // this.confirmpassword = undefined
-    }
-
-    console.log("in this pre method hashed non raw password is ", this.password);
+    // if(!this.isModified(this.password)) {
+    //     this.password = await createHashPwd(this.password)
+    //     this.createdAt = new Date()
+    //     // this.confirmpassword = undefined
+    // }
 
     next()
 })
 
-
 // model for sellers collection
-const sellersCollection = new mongoose.model("Sellers", sellersSchema)
+const sellersCollection = new mongoose.model("Sellers", sellersCollectionSchema)
 
 export default sellersCollection

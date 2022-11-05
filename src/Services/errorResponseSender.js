@@ -1,9 +1,10 @@
 // function for sebding error message as an response
 
-function errResponseSender(response, value, errMag) {
-    if (value === undefined || value === "") {
+const errResponseSender = (response, value, errMag) => {
+    if (value === undefined || value === "" || value === null) {
         response.status(400).send({
-            error: errMag
+            status: "faild",
+            msg: errMag
         })
         return true
     } else {
