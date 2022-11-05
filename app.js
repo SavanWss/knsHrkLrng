@@ -31,11 +31,15 @@ app.use(loginApi)
 // api for handling router
 app.use(otpRouter)
 
+app.get("/", (req,res) => {
+    res.send("first heroku app")
+})
+
 // defined the server port
-let serverPort = process.env.SERVER_PORT
+let serverPort = process.env.SERVER_PORT || 80
 
 // creating the node server
-app.listen(serverPort, () => {
+app.listen(80, () => {
     console.log("node server is started");
     console.log(`on port number ${serverPort}`);
 })
